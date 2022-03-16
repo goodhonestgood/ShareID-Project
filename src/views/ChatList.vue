@@ -1,7 +1,7 @@
 <template>
     <div class="chatlist">
         <p># 방 만들기</p>
-        <form @submit.prevent="handleRoom">
+        <form @submit.prevent="handleMake">
             <input class="form-control me-2 mb-2 text-secondary" type="text" placeholder="방 이름 입력" aria-label="input" v-model="roomName">
             <button class="btn btn-outline-secondary" type="submit"> OK </button>
         </form>
@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { computed } from '@vue/runtime-core';
+import { computed, ref } from '@vue/runtime-core';
 import { useStore } from 'vuex';
 export default {
     setup() {

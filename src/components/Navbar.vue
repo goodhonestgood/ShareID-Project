@@ -22,7 +22,7 @@
         <router-link class="nav-link text-dark" to="/"> HOME </router-link>
       </li>
       <li class="nav-item">
-        <div v-if="isLoggedIn"><router-link class="nav-link text-info" to="/chatlist"> My Chatroom List </router-link></div>
+        <div v-if="isLoggedIn"><router-link class="nav-link text-info" to="/my-chat"> My Chatroom List </router-link></div>
       </li>
       <li class="nav-item">
         <router-link class="nav-link text-secondary" to="/"> Wavve </router-link>

@@ -5,7 +5,9 @@ import { auth, db } from '../firebase/config'
 import {
     createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut
 } from 'firebase/auth'
-import { addDoc, Timestamp, collection, query, where } from "firebase/firestore"
+import {
+    addDoc, Timestamp, collection, query, where, getDocs
+} from "firebase/firestore"
 
 // createStore : 새로운 store를 생성
 const store = createStore({
@@ -23,14 +25,14 @@ const store = createStore({
 
     mutations : {
         setUser(state, data) {
-            state.user = data
+            state.user = data.email
             console.log('user changed : ', state.user)
         },
         setAuthIsReady(state, payload) {
             state.authIsReady = payload
         },
         setRoom(state, payload) {
-            state.chatRooms = payload
+            state.chatRooms.push(payload)
             console.log('user Rooms append : ', state.chatRooms)
         }
     },
@@ -68,19 +70,18 @@ const store = createStore({
         async getRoom(context) {
             console.log('get room action')
 
-            const q = query(collection(db, "ChatList"), where("authId", "==", context.state.user));
+            const q = query(collection(db, "chatlist"), where("userEmail", "==", context.state.user));
             const querySnapshot = await getDocs(q);
-            let temp = []
-            querySnapshot.forEach((doc) => {
-                temp.push(doc.data())
-            });
-            context.commit('setRoom', temp)
+            let datas = []
+            querySnapshot.forEach(doc=>{
+                context.commit('setRoom', doc.data())
+            })
         },
         async chatRoomMake(context , { roomName }){
             console.log('chatRoomMake action')
 
-            const res = await addDoc(collection(db, "ChatList"), {
-                authId: context.state.user,
+            await addDoc(collection(db, "chatlist"), {
+                userEmail: context.state.user,
                 roomId: crypto.SHA256(roomName+Timestamp.now().toString()).toString(),
                 roomName: roomName
             });
