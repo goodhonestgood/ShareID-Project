@@ -19,6 +19,10 @@ const routes = [
       path: "/register",
       component: () => import("./views/Register.vue"),
   },
+  {
+    path: "/my-chat",
+    component: () => import("./views/ChatList.vue"),
+},
 ];
 
 const router = createRouter({
