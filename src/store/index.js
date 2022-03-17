@@ -32,7 +32,7 @@ const store = createStore({
             state.authIsReady = payload
         },
         setRoom(state, payload) {
-            state.chatRooms.push(payload)
+            state.chatRooms.push(...payload)
             console.log('user Rooms append : ', state.chatRooms)
         }
     },
@@ -72,19 +72,28 @@ const store = createStore({
 
             const q = query(collection(db, "chatlist"), where("userEmail", "==", context.state.user));
             const querySnapshot = await getDocs(q);
-            let datas = []
+            //const roomNames = context.state.chatRooms.map(c=>c.roomName)
+            let tmp = []
             querySnapshot.forEach(doc=>{
-                context.commit('setRoom', doc.data())
+                tmp.push(doc.data())
             })
+            context.commit('setRoom', tmp)
         },
         async chatRoomMake(context , { roomName }){
             console.log('chatRoomMake action')
-
-            await addDoc(collection(db, "chatlist"), {
+            const q = {
                 userEmail: context.state.user,
                 roomId: crypto.SHA256(roomName+Timestamp.now().toString()).toString(),
                 roomName: roomName
-            });
+            }
+            // 맞긴하지만 바로 가져오는 방법은 없는지 찾기
+            const docRef = await addDoc(collection(db, "chatlist"), q);
+            context.commit('setRoom', [{
+                id:docRef.id,
+                userEmail: q.userEmail,
+                roomId: q.roomId,
+                roomName: q.roomName
+            }])
         },
     },
 
@@ -96,6 +105,5 @@ const unsub = onAuthStateChanged(auth, (user) => {
     store.commit('setAuthIsReady', true)
     store.commit('setUser', user)
     store.dispatch('getRoom')
-    unsub()
 })
 export default store

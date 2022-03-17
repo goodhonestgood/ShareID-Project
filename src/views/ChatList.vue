@@ -7,9 +7,10 @@
         </form>
         <hr />
         <p># 내 채팅 목록</p>
-        <div v-if="roomName != ''" class="list-group">
-            <div class="mb-2" v-for="(name,index) in chatLists" :key="index">
-                <a href="#" class="list-group-item list-group-item-action" @click="goRoom(index)">{{name.roomName}}</a>
+        <div v-if="chatLists" class="list-group">
+            <div class="mb-2" v-for="list in chatLists">
+                <!-- named route -->
+                <router-link class="list-group-item list-group-item-action" :to="{ name: 'ChatRoom', params: { id: list.roomId }}">{{list.roomName}}</router-link>
             </div>
         </div>
         <div v-else>
@@ -19,24 +20,25 @@
 </template>
 
 <script>
-import { computed, ref } from '@vue/runtime-core';
+import { onMounted, computed, ref } from '@vue/runtime-core';
 import { useStore } from 'vuex';
+
 export default {
     setup() {
-        const roomName = ref("");
-        const store = useStore();
+        const roomName = ref("")
+        const store = useStore()
 
-        const chatLists = computed(() => store.state.chatRooms)
+        let chatLists = computed(() => store.state.chatRooms)
         const handleMake = async () => {
             try {
-                await store.dispatch('chatRoomMake', { roomName: roomName })
-                router.push('/my-chat') // reload
+                await store.dispatch('chatRoomMake', { roomName: roomName.value })
+                roomName.value = ""
+                chatLists = computed(() => store.state.chatRooms)
             } catch(err) {
                 alert(err)
             }
         }
-
-        return { roomName, chatLists, handleMake }
+        return { onMounted, roomName, chatLists, handleMake }
     },
 }
 </script>
