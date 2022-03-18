@@ -6,7 +6,7 @@ import {
     createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut
 } from 'firebase/auth'
 import {
-    addDoc, Timestamp, collection, query, where, getDocs
+    addDoc, Timestamp, collection, query, where, getDocs, doc, updateDoc, arrayUnion, arrayRemove, limit
 } from "firebase/firestore"
 
 // createStore : 새로운 store를 생성
@@ -20,6 +20,7 @@ const store = createStore({
             user: null,
             authIsReady: false,
             chatRooms: [],
+            allChatRooms: [],
         }
     },
 
@@ -34,6 +35,9 @@ const store = createStore({
         setRoom(state, payload) {
             state.chatRooms.push(...payload)
             console.log('user Rooms append : ', state.chatRooms)
+        },
+        setAllRoom(state, payload) {
+            state.allChatRooms = payload
         }
     },
 
@@ -72,7 +76,7 @@ const store = createStore({
 
             const q = query(collection(db, "chatlist"), where("userEmail", "==", context.state.user));
             const querySnapshot = await getDocs(q);
-            //const roomNames = context.state.chatRooms.map(c=>c.roomName)
+
             let tmp = []
             querySnapshot.forEach(doc=>{
                 tmp.push(doc.data())
@@ -86,7 +90,7 @@ const store = createStore({
                 roomId: crypto.SHA256(roomName+Timestamp.now().toString()).toString(),
                 roomName: roomName
             }
-            // 맞긴하지만 바로 가져오는 방법은 없는지 찾기
+            
             const docRef = await addDoc(collection(db, "chatlist"), q);
             context.commit('setRoom', [{
                 id:docRef.id,
@@ -95,6 +99,26 @@ const store = createStore({
                 roomName: q.roomName
             }])
         },
+        async getAllRoom(context) { // 인원 부족한 방 where("state","==", true),
+            console.log('all room action')
+            const q = query(collection(db, "chatlist"), orderBy("makeTime", "desc"), limit(3))
+            const allRef = await getDocs(q)
+            let tmp = []
+            allRef.forEach(doc=>{
+                tmp.push(doc.data())
+            })
+            context.commit('setAllRoom', tmp)
+        },
+        async intoRoom(context, { index }) { // 인원 부족한 방 중에 들어갈때
+            console.log('into the room action')
+
+            const allChatRoomRef = doc(db, "chatlist", index);
+
+            // Atomically add a new region to the "regions" array field.
+            await updateDoc(allChatRoomRef, {
+                users: arrayUnion(context.state.user)
+            });
+        }
     },
 
     getters: {
@@ -106,4 +130,11 @@ const unsub = onAuthStateChanged(auth, (user) => {
     store.commit('setUser', user)
     store.dispatch('getRoom')
 })
+
+
+/*
+// Atomically remove a region from the "regions" array field.
+await updateDoc(washingtonRef, {
+    regions: arrayRemove("east_coast")
+});*/
 export default store
