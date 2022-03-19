@@ -1,5 +1,5 @@
 <template>
-  <div v-if="authIsReady" class="py-1 bg-light">
+  <div class="py-1 bg-light">
     <ul class="nav justify-content-end align-items-center">
       <li class="nav-item">
         <div v-if="isLoggedIn"><a href="#" class="hover nav-link text-secondary" @click="handleClick"> Logout </a></div>

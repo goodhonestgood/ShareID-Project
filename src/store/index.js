@@ -6,7 +6,7 @@ import {
     createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut
 } from 'firebase/auth'
 import {
-    addDoc, Timestamp, collection, query, where, getDocs, doc, updateDoc, arrayUnion, arrayRemove, limit
+    addDoc, Timestamp, collection, query, where, getDocs, doc, updateDoc, arrayUnion, arrayRemove, limit, orderBy
 } from "firebase/firestore"
 
 // createStore : 새로운 store를 생성
@@ -26,18 +26,19 @@ const store = createStore({
 
     mutations : {
         setUser(state, data) {
-            state.user = data.email
-            console.log('user changed : ', state.user)
+            state.user = data
+            console.log('user changed : ', state.user.email)
         },
         setAuthIsReady(state, payload) {
             state.authIsReady = payload
         },
         setRoom(state, payload) {
-            state.chatRooms.push(...payload)
-            console.log('user Rooms append : ', state.chatRooms)
+            state.chatRooms.unshift(...payload)
+            console.log('User Rooms append : ', state.chatRooms)
         },
         setAllRoom(state, payload) {
             state.allChatRooms = payload
+            console.log('All Rooms append : ', state.allChatRooms)
         }
     },
 
@@ -49,7 +50,7 @@ const store = createStore({
             // async code
             const res = await createUserWithEmailAndPassword(auth, email, password)
             if (res) {
-                context.commit('setUser', res.user)
+                context.commit('setUser', res.user.email)
             } else {
                 throw new Error('could not complete signup')
             }
@@ -74,7 +75,7 @@ const store = createStore({
         async getRoom(context) {
             console.log('get room action')
 
-            const q = query(collection(db, "chatlist"), where("userEmail", "==", context.state.user));
+            const q = query(collection(db, "chatlist"), where("users", "array-contains", context.state.user.email));
             const querySnapshot = await getDocs(q);
 
             let tmp = []
@@ -86,29 +87,36 @@ const store = createStore({
         async chatRoomMake(context , { roomName }){
             console.log('chatRoomMake action')
             const q = {
-                userEmail: context.state.user,
+                users: [context.state.user.email],
                 roomId: crypto.SHA256(roomName+Timestamp.now().toString()).toString(),
-                roomName: roomName
+                roomName: roomName,
+                type: 'Wavve',
+                state: false,
+                makeTime: Timestamp.now()
             }
             
             const docRef = await addDoc(collection(db, "chatlist"), q);
             context.commit('setRoom', [{
-                id:docRef.id,
-                userEmail: q.userEmail,
                 roomId: q.roomId,
-                roomName: q.roomName
+                roomName: q.roomName,
+                state: q.state,
+                type: q.type,
+                users: q.users,
+                makeTime: q.makeTime,
             }])
         },
-        async getAllRoom(context) { // 인원 부족한 방 where("state","==", true),
+        async getAllRoom(context) { // 인원 부족한 방 where("state","==", true),orderBy("makeTime", "desc")
             console.log('all room action')
-            const q = query(collection(db, "chatlist"), orderBy("makeTime", "desc"), limit(3))
+            const q = query(collection(db, "chatlist"), where("state","==", false), limit(10))
             const allRef = await getDocs(q)
             let tmp = []
             allRef.forEach(doc=>{
-                tmp.push(doc.data())
+                if(doc.data().users.indexOf(context.state.user.email)<0) tmp.push(doc.data());
             })
-            context.commit('setAllRoom', tmp)
+            if(tmp.length > 0) context.commit('setAllRoom', tmp);
+            else console.log( '빈 방이 없습니다.')
         },
+        // 여기 부터!!!
         async intoRoom(context, { index }) { // 인원 부족한 방 중에 들어갈때
             console.log('into the room action')
 
@@ -116,7 +124,7 @@ const store = createStore({
 
             // Atomically add a new region to the "regions" array field.
             await updateDoc(allChatRoomRef, {
-                users: arrayUnion(context.state.user)
+                users: arrayUnion(context.state.user.email)
             });
         }
     },
@@ -126,9 +134,12 @@ const store = createStore({
 })
 
 const unsub = onAuthStateChanged(auth, (user) => {
-    store.commit('setAuthIsReady', true)
-    store.commit('setUser', user)
-    store.dispatch('getRoom')
+    if (user) {
+        console.log("onAuthStateChanged ok")
+        store.commit('setAuthIsReady', true)
+        store.commit('setUser', user)
+        store.dispatch('getRoom')
+    }    
 })
 
 

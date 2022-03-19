@@ -1,27 +1,36 @@
 <template>
-  <div>
-    <h2>{{ rootStateData }}</h2>
-    <button @click="setRoot">Set Root Data</button>
-  </div>
+<!--state == false인  채팅 방 보기-->
+<div class="container">
+    <div v-if="allChatRooms.length > 0" class="row">
+        <div class="col-lg-4 col-sm-12 col-md-4 mb-2" v-for="room in allChatRooms" >
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{room.type}}</h5>
+                    <p class="card-text">{{room.state}}</p>
+                    <button @click="comein" class="btn btn-primary">방 들어가기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div v-else> 빈 방이 없습니다 </div>
+</div>
 </template>
+
 <script>
-import { computed } from "vue";
-import { useStore } from "vuex";
+import { useStore } from 'vuex'
+import { ref, onMounted, computed } from 'vue'
 
 export default {
-  name: "Test",
-  setup() {
-    const store = useStore();
-    const rootStateData = computed(() => store.state.data);
-    const setRoot = () => store.dispatch("setRootData", "testRoot"); //RootState
+    setup() {
+        const store = useStore()
 
-    return {
-      rootStateData,
-      setRoot,
-    };
-  },
-};
+        const allChatRooms = computed(() => store.state.allChatRooms)
+        const comein = () => {}
+
+        onMounted(() => {
+          store.dispatch('getAllRoom')
+        }) 
+        return {allChatRooms , comein}
+    }
+}
 </script>
-
-<style>
-</style>
