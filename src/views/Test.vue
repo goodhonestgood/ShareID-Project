@@ -7,7 +7,7 @@
                 <div class="card-body">
                     <h5 class="card-title">{{room.type}}</h5>
                     <p class="card-text">{{room.state}}</p>
-                    <button @click="comein" class="btn btn-primary">방 들어가기</button>
+                    <button @click="comein(room.roomId)" class="btn btn-primary">방 들어가기</button>
                 </div>
             </div>
         </div>
@@ -25,7 +25,9 @@ export default {
         const store = useStore()
 
         const allChatRooms = computed(() => store.state.allChatRooms)
-        const comein = () => {}
+        const comein = (roomId) => {
+          store.dispatch('intoRoom', {roomId:roomId})
+        }
 
         onMounted(() => {
           store.dispatch('getAllRoom')

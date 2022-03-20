@@ -38,7 +38,7 @@ const store = createStore({
         },
         setAllRoom(state, payload) {
             state.allChatRooms = payload
-            console.log('All Rooms append : ', state.allChatRooms)
+            console.log('All Rooms append : ', state.allChatRooms[0])
         }
     },
 
@@ -117,13 +117,15 @@ const store = createStore({
             else console.log( '빈 방이 없습니다.')
         },
         // 여기 부터!!!
-        async intoRoom(context, { index }) { // 인원 부족한 방 중에 들어갈때
-            console.log('into the room action')
+        async intoRoom(context, { roomId }) { // 인원 부족한 방 중에 들어갈때
+            console.log('into the room action : ', roomId)
+            
+            const q = query(collection(db, "chatlist"), where("roomId","==", roomId),limit(1))
+            const aDoc = await getDocs(q)
+            
+            const theRoom = doc(db,"chatlist",aDoc[0].doc().id);
 
-            const allChatRoomRef = doc(db, "chatlist", index);
-
-            // Atomically add a new region to the "regions" array field.
-            await updateDoc(allChatRoomRef, {
+            await updateDoc(theRoom, {
                 users: arrayUnion(context.state.user.email)
             });
         }
