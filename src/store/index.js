@@ -88,6 +88,7 @@ const store = createStore({
             console.log('chatRoomMake action')
             const q = {
                 users: [context.state.user.email],
+                maker: context.state.user.email,
                 roomId: crypto.SHA256(roomName+Timestamp.now().toString()).toString(),
                 roomName: roomName,
                 type: 'Wavve',
@@ -99,13 +100,14 @@ const store = createStore({
             context.commit('setRoom', [{
                 roomId: q.roomId,
                 roomName: q.roomName,
+                maker: context.state.user.email,
                 state: q.state,
                 type: q.type,
                 users: q.users,
                 makeTime: q.makeTime,
             }])
         },
-        async getAllRoom(context) { // 인원 부족한 방 where("state","==", true),orderBy("makeTime", "desc")
+        async getAllRoom(context) { // 인원 부족한 방 
             console.log('all room action')
             const q = query(collection(db, "chatlist"), where("state","==", false), limit(10))
             const allRef = await getDocs(q)
