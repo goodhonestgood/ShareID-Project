@@ -1,18 +1,18 @@
 import {createStore} from "vuex"
 import crypto from 'crypto-js'
 // firebase imports
-import { auth, db } from '../firebase/config'
+import { auth } from '../firebase/config'
 import {
     createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut
 } from 'firebase/auth'
-import {
-    addDoc, Timestamp, collection, query, where, getDocs, doc, updateDoc, arrayUnion, arrayRemove, limit, orderBy
-} from "firebase/firestore"
+
+import ChatRoomModule from './modules/ChatRoom'
 
 // createStore : 새로운 store를 생성
 const store = createStore({
     strict : process.env.NODE_ENV !== 'production',
     modules : {
+        ChatRoomModule
     },
 
     state () {
@@ -31,7 +31,7 @@ const store = createStore({
         },
         setAuthIsReady(state, payload) {
             state.authIsReady = payload
-        },
+        },/*
         setRoom(state, payload) {
             state.chatRooms.unshift(...payload)
             console.log('User Rooms append : ', state.chatRooms)
@@ -39,7 +39,7 @@ const store = createStore({
         setAllRoom(state, payload) {
             state.allChatRooms = payload
             console.log('All Rooms append : ', state.allChatRooms[0])
-        }
+        }*/
     },
 
     // action에서는 mutations에서는 하지 못하는 ajax와 같이 비동기식 처리를 한다
@@ -71,7 +71,7 @@ const store = createStore({
 
             await signOut(auth)
             context.commit('setUser', null)
-        },
+        },/*
         async getRoom(context) {
             console.log('get room action')
 
@@ -130,7 +130,7 @@ const store = createStore({
             await updateDoc(theRoom, {
                 users: arrayUnion(context.state.user.email)
             });
-        }
+        }*/
     },
 
     getters: {
@@ -142,7 +142,7 @@ const unsub = onAuthStateChanged(auth, (user) => {
         console.log("onAuthStateChanged ok")
         store.commit('setAuthIsReady', true)
         store.commit('setUser', user)
-        store.dispatch('getRoom')
+        /*store.dispatch('getRoom')*/
     }    
 })
 
