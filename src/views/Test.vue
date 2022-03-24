@@ -24,13 +24,13 @@ export default {
     setup() {
         const store = useStore()
 
-        const allChatRooms = computed(() => store.state.allChatRooms)
+        const allChatRooms = computed(() => store.state.ChatRoomModule.allChatRooms)
         const comein = (roomId) => {
-          store.dispatch('intoRoom', {roomId:roomId})
+          store.dispatch('ChatRoomModule/intoRoom', {roomId:roomId})
         }
 
         onMounted(() => {
-          store.dispatch('getAllRoom')
+          store.dispatch('ChatRoomModule/getAllRoom')
         }) 
         return {allChatRooms , comein}
     }

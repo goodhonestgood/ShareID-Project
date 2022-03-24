@@ -28,12 +28,12 @@ export default {
         const roomName = ref("")
         const store = useStore()
 
-        let chatLists = computed(() => store.state.chatRooms)
+        let chatLists = computed(() => store.state.ChatRoomModule.chatRooms)
         const handleMake = async () => {
             try {
-                await store.dispatch('chatRoomMake', { roomName: roomName.value })
+                await store.dispatch('ChatRoomModule/chatRoomMake', { roomName: roomName.value })
                 roomName.value = ""
-                chatLists = computed(() => store.state.chatRooms)
+                chatLists = computed(() => store.state.ChatRoomModule.chatRooms)
             } catch(err) {
                 alert(err)
             }
