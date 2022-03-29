@@ -1,4 +1,5 @@
 import { db } from '../../firebase/config'
+import crypto from 'crypto-js'
 import {
     addDoc, Timestamp, collection, query, where, getDocs, doc, updateDoc, arrayUnion, arrayRemove, limit, orderBy
 } from "firebase/firestore"
@@ -9,7 +10,7 @@ const state = {
 }
 const mutations = {
     setRoom(state, payload) {
-        state.chatRooms.unshift(...payload)
+        state.chatRooms = payload
         console.log('User Rooms append : ', state.chatRooms)
     },
     setAllRoom(state, payload) {
@@ -21,7 +22,7 @@ const actions = {
     async getRoom(context) {
         console.log('get room action')
 
-        const q = query(collection(db, "chatlist"), where("users", "array-contains", context.state.user.email));
+        const q = query(collection(db, "chatlist"), where("users", "array-contains", context.rootState.user.email));
         const querySnapshot = await getDocs(q);
 
         let tmp = []
@@ -33,8 +34,8 @@ const actions = {
     async chatRoomMake(context , { roomName }){
         console.log('chatRoomMake action')
         const q = {
-            users: [context.state.user.email],
-            maker: context.state.user.email,
+            users: [context.rootState.user.email],
+            maker: context.rootState.user.email,
             roomId: crypto.SHA256(roomName+Timestamp.now().toString()).toString(),
             roomName: roomName,
             type: 'Wavve',
@@ -43,39 +44,38 @@ const actions = {
         }
         
         const docRef = await addDoc(collection(db, "chatlist"), q);
-        context.commit('setRoom', [{
-            roomId: q.roomId,
-            roomName: q.roomName,
-            maker: context.state.user.email,
-            state: q.state,
-            type: q.type,
-            users: q.users,
-            makeTime: q.makeTime,
-        }])
+        context.dispatch('getRoom')
     },
     async getAllRoom(context) { // 인원 부족한 방 
         console.log('all room action')
-        const q = query(collection(db, "chatlist"), where("state","==", false), limit(10))
+        const q = query(collection(db, "chatlist"), where("state","==", false), limit(10)) // 일단 10개로 제한
         const allRef = await getDocs(q)
         let tmp = []
         allRef.forEach(doc=>{
-            if(doc.data().users.indexOf(context.state.user.email)<0) tmp.push(doc.data());
+            if(doc.data().users.indexOf(context.rootState.user.email)<0) tmp.push(doc.data());
         })
         if(tmp.length > 0) context.commit('setAllRoom', tmp);
         else console.log( '빈 방이 없습니다.')
     },
-    // 여기 부터!!!
+
     async intoRoom(context, { roomId }) { // 인원 부족한 방 중에 들어갈때
         console.log('into the room action : ', roomId)
-        
-        const q = query(collection(db, "chatlist"), where("roomId","==", roomId),limit(1))
-        const aDoc = await getDocs(q)
-        
-        const theRoom = doc(db,"chatlist",aDoc[0].doc().id);
+        try {
+            const q = query(collection(db, "chatlist"), where("roomId","==", roomId),limit(1))
+            const aDoc = await getDocs(q)
+            let aid = ""
+            aDoc.forEach(doc=>{
+                aid = doc.id
+            })
 
-        await updateDoc(theRoom, {
-            users: arrayUnion(context.state.user.email)
-        });
+            const theRoom = doc(db,"chatlist",aid);
+            await updateDoc(theRoom, {
+                users: arrayUnion(context.rootState.user.email)
+            });
+        } catch (e) {
+            console.error("Error adding document: ", e);
+        }
+        
     }
 }
 const getters = {

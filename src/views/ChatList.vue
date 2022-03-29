@@ -38,6 +38,10 @@ export default {
                 alert(err)
             }
         }
+
+        onMounted(() => {
+          store.dispatch('ChatRoomModule/getRoom')
+        }) 
         return { onMounted, roomName, chatLists, handleMake }
     },
 }

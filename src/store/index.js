@@ -1,5 +1,5 @@
 import {createStore} from "vuex"
-import crypto from 'crypto-js'
+
 // firebase imports
 import { auth } from '../firebase/config'
 import {
@@ -7,12 +7,14 @@ import {
 } from 'firebase/auth'
 
 import ChatRoomModule from './modules/ChatRoom'
+import ChatModule from './modules/Chat'
 
 // createStore : 새로운 store를 생성
 const store = createStore({
     strict : process.env.NODE_ENV !== 'production',
     modules : {
-        ChatRoomModule
+        ChatRoomModule,
+        ChatModule,
     },
 
     state () {
@@ -75,7 +77,7 @@ const unsub = onAuthStateChanged(auth, (user) => {
         console.log("onAuthStateChanged ok")
         store.commit('setAuthIsReady', true)
         store.commit('setUser', user)
-        /*store.dispatch('getRoom')*/
+        store.dispatch('ChatRoomModule/getRoom')
     }    
 })
 

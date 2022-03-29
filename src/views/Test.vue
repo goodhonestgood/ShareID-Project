@@ -5,7 +5,7 @@
         <div class="col-lg-4 col-sm-12 col-md-4 mb-2" v-for="room in allChatRooms" >
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">{{room.type}}</h5>
+                    <h5 class="card-title">{{room.roomName}}</h5>
                     <p class="card-text">{{room.state}}</p>
                     <button @click="comein(room.roomId)" class="btn btn-primary">방 들어가기</button>
                 </div>
@@ -18,15 +18,18 @@
 
 <script>
 import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 import { ref, onMounted, computed } from 'vue'
 
 export default {
     setup() {
         const store = useStore()
+        const router = useRouter()
 
         const allChatRooms = computed(() => store.state.ChatRoomModule.allChatRooms)
         const comein = (roomId) => {
           store.dispatch('ChatRoomModule/intoRoom', {roomId:roomId})
+          router.push({ name: 'ChatRoom', params: { id: roomId }})
         }
 
         onMounted(() => {

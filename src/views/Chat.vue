@@ -27,10 +27,12 @@
 </template>
 
 <script>
+import { useStore } from "vuex"
 export default {
     setup() {
+        const store = useStore()
         const chatAdd = () => {
-            
+            store.dispatch('')
         }
         return { chatAdd }
     },
