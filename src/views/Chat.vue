@@ -27,12 +27,16 @@
 </template>
 
 <script>
+import { ref } from '@vue/reactivity'
 import { useStore } from "vuex"
+import { useRoute } from 'vue-router'
 export default {
     setup() {
+        const inputText = ref("")
+        const route = useRoute()
         const store = useStore()
         const chatAdd = () => {
-            store.dispatch('')
+            store.dispatch('ChatModule/addChat', { roomId: route.params.id, text: inputText })
         }
         return { chatAdd }
     },
