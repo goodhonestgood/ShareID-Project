@@ -1,8 +1,5 @@
 import { db } from '../../firebase/config'
-import crypto from 'crypto-js'
-import {
-    setDoc, Timestamp, collection, query, where, getDocs, doc, updateDoc, arrayUnion, arrayRemove, limit, orderBy, collectionGroup
-} from "firebase/firestore"
+import { collection, doc, addDoc, query, where, limit, getDocs, Timestamp, collectionGroup, orderBy } from "firebase/firestore";
 
 const getId = async (chatlist, roomId) => {
     const q = query(chatlist, where("roomId","==", roomId),limit(1))
@@ -11,7 +8,6 @@ const getId = async (chatlist, roomId) => {
     aDoc.forEach(doc=>{
         aid = doc.id
     })
-    console.log(aid)
     return aid
 }
 
@@ -24,15 +20,31 @@ const mutations = {
 }
 
 const actions = {
-    // 여기부터
     async addChat(context, { roomId, text }) {
         try {
             const chatlist = collection(db, 'chatlist')
             const aid = await getId(chatlist, roomId)
-            await setDoc(doc(chatlist, "0320test", "messages"), { // error
+            await addDoc(collection(doc(chatlist, aid), 'messages'), { // 하위컬렉션에 추가하기
                 user: context.rootState.user.email,
                 text: text,
                 time: Timestamp.now(),
+            })
+        } catch (e) {
+            console.error("Error adding document: ", e);
+        }
+    },
+    // 여기부터
+    async updateChat(context, { roomId }) {
+        try {
+            const chatlist = collection(db, 'chatlist')
+            const aid = await getId(chatlist, roomId)
+            const q = query(collection(doc(chatlist, aid), 'messages'), orderBy("time"));
+            const unsubscribe = onSnapshot(q, (querySnapshot) => {
+                const temp = [];
+                querySnapshot.forEach((doc) => {
+                    temp.push(doc.data());
+                });
+                return temp
             });
         } catch (e) {
             console.error("Error adding document: ", e);

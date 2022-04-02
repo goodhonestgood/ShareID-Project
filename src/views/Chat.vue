@@ -3,8 +3,8 @@
         <div class="">
             <ul class="">
                 <li v-for="(chat,index) in chats" :key="index">
-                    <div v-if="ifme(chat.authId)" class="fs-6 d-flex flex-row-reverse bd-highlight">
-                        <div class="p-2 bd-highlight">{{chat.authId[0]}}</div>
+                    <div v-if="ifme(chat.user)" class="fs-6 d-flex flex-row-reverse bd-highlight">
+                        <div class="p-2 bd-highlight">{{chat.user[0]}}</div>
                         <div class="p-2 bd-highlight">{{chat.text}}</div>
                         <!-- <div class="p-2 bd-highlight">{{chat.text}}</div> -->
                     </div>
@@ -36,10 +36,19 @@ export default {
         const inputText = ref('')
         const route = useRoute()
         const store = useStore()
+        const my_email = store.state.user.email
         const chatAdd = () => {
             store.dispatch('ChatModule/addChat', { roomId: route.params.id, text: inputText.value })
         }
-        return { inputText, chatAdd }
+        const chats = computed(() => store.dispatch('ChatModule/updateChat')) // 여기부터
+        const ifme = (user) => {
+            if (user == my_email) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return { inputText, chatAdd, chats, ifme }
     },
 }
 </script>
