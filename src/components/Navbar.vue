@@ -19,16 +19,13 @@
   <div class="menu mt-1 mb-3">
     <ul class="nav justify-content-center">
       <li class="nav-item">
-        <router-link class="nav-link text-dark" to="/"> HOME </router-link>
+        <router-link class="nav-link text-dark" to="/"> 홈 </router-link>
       </li>
       <li class="nav-item">
-        <div v-if="isLoggedIn"><router-link class="nav-link text-info" to="/my-chat"> My Chatroom List </router-link></div>
+        <div v-if="isLoggedIn"><router-link class="nav-link text-info" to="/my-chat"> 나의 채팅방 </router-link></div>
       </li>
       <li class="nav-item">
-        <router-link class="nav-link text-secondary" to="/"> Wavve </router-link>
-      </li>
-      <li class="nav-item">
-        <router-link class="nav-link text-secondary" to="/"> Netflix </router-link>
+        <router-link class="nav-link text-secondary" to="/my-page"> 마이페이지 </router-link>
       </li>
     </ul>
   </div>

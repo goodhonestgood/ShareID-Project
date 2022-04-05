@@ -46,16 +46,20 @@ const actions = {
         const docRef = await addDoc(collection(db, "chatlist"), q);
         context.dispatch('getRoom')
     },
-    async getAllRoom(context) { // 인원 부족한 방 
+    async getAllRoom(context, {type}) { // 인원 부족한 방 
         console.log('all room action')
-        const q = query(collection(db, "chatlist"), where("state","==", false), limit(10)) // 일단 10개로 제한
+        let q = null
+        if (type !== 'All') {
+            q = query(collection(db, "chatlist"), where("state","==", false), where("type", "==", type), limit(10)) // 일단 10개로 제한
+        } else {
+            q = query(collection(db, "chatlist"), where("state","==", false), limit(10)) // 일단 10개로 제한
+        }
         const allRef = await getDocs(q)
         let tmp = []
         allRef.forEach(doc=>{
             if(doc.data().users.indexOf(context.rootState.user.email)<0) tmp.push(doc.data());
         })
-        if(tmp.length > 0) context.commit('setAllRoom', tmp);
-        else console.log( '빈 방이 없습니다.')
+        context.commit('setAllRoom', tmp);
     },
 
     async intoRoom(context, { roomId }) { // 인원 부족한 방 중에 들어갈때
