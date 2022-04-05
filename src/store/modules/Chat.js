@@ -28,12 +28,13 @@ const actions = {
                 user: context.rootState.user.email,
                 text: text,
                 time: Timestamp.now(),
+                roomId: roomId,
             })
         } catch (e) {
             console.error("Error adding document: ", e);
         }
     },
-    // 여기부터
+    /*
     async updateChat(context, { roomId }) {
         try {
             const chatlist = collection(db, 'chatlist')
@@ -49,7 +50,7 @@ const actions = {
         } catch (e) {
             console.error("Error adding document: ", e);
         }
-    }
+    }*/
 }
 
 const getters = {
