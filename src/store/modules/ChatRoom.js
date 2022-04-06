@@ -31,14 +31,14 @@ const actions = {
         })
         context.commit('setRoom', tmp)
     },
-    async chatRoomMake(context , { roomName }){
+    async chatRoomMake(context , { roomName, type }){
         console.log('chatRoomMake action')
         const q = {
             users: [context.rootState.user.email],
             maker: context.rootState.user.email,
             roomId: crypto.SHA256(roomName+Timestamp.now().toString()).toString(),
             roomName: roomName,
-            type: 'Wavve',
+            type: type,
             state: false,
             makeTime: Timestamp.now()
         }
