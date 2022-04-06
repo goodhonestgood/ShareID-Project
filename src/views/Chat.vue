@@ -1,4 +1,5 @@
 <template>
+    <div>방이름 : {{roomName}}</div>
     <div class="card border-secondary chat-shape bg-light position-relative">
         <div class="position-absolute top-0 start-0 w-100">
             <ul class="list-unstyled">
@@ -35,6 +36,7 @@ import { db } from '../firebase/config'
 import { collectionGroup, query, where, onSnapshot, orderBy } from "firebase/firestore";
 
 export default {
+    props: ['id','roomName'],
     setup() {
         const inputText = ref('')
         const route = useRoute()
