@@ -14,7 +14,10 @@
     </div>
     <div v-else> 빈 방이 없습니다 </div>
     <ConfirmModal @close="toggleModal" :modalActive ="modalActive">
-        {{selectedRoom.users}}
+        <p>type: {{selectedRoom.roomName}}</p>
+        <p>users: {{selectedRoom.users}}</p>
+        <p>type: {{selectedRoom.type}}</p>
+        <button @click="comein(selectedRoom)" class="btn btn-primary">방 들어가기</button>
     </ConfirmModal>
 </div>
 </template>
@@ -34,9 +37,9 @@ export default {
         const store = useStore();
         const router = useRouter();
         const allChatRooms = computed(() => store.state.ChatRoomModule.allChatRooms);
-        const comein = (roomId) => {
-            store.dispatch("ChatRoomModule/intoRoom", { roomId: roomId });
-            router.push({ name: "ChatRoom", params: { id: roomId } });
+        const comein = (room) => {
+            store.dispatch("ChatRoomModule/intoRoom", { roomId: room.roomId });
+            router.push({ name: "ChatRoom", params: { id: room.roomId, roomName: room.roomName } });
         };
         
         const modalActive = ref(false)
@@ -49,11 +52,10 @@ export default {
             selectedRoom.value = room
             toggleModal()
         }
-
         onMounted(() => {
             store.dispatch("ChatRoomModule/getAllRoom", {type: 'All'});
         });
-        return { allChatRooms, comein, toggleModal, modalActive, select, selectedRoom };
+        return { allChatRooms, comein, toggleModal, modalActive, select, selectedRoom};
     },
     components: { FilterNav, ConfirmModal }
 }
