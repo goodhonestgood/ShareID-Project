@@ -7,15 +7,24 @@ import {
 const state = {
     chatRooms: [],
     allChatRooms: [],
+    roomOfUser: [],
 }
 const mutations = {
     setRoom(state, payload) {
         state.chatRooms = payload
         console.log('User Rooms append : ', state.chatRooms)
+        let tmp = {'Wavve': false, 'Tving': false, 'Netflix': false}
+        for (let p of payload) {
+            if (p.type === 'Wavve') tmp['Wavve'] = true;
+            if (p.type === 'Tving') tmp['Tving'] = true;
+            if (p.type === 'Netflix') tmp['Netflix'] = true;
+        }
+        state.roomOfUser = tmp
+        console.log('user room state: ', state.roomOfUser)
     },
     setAllRoom(state, payload) {
         state.allChatRooms = payload
-        console.log('All Rooms append : ', state.allChatRooms[0])
+        console.log('All Rooms append : ', state.allChatRooms)
     }
 }
 const actions = {
