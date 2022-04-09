@@ -1,13 +1,13 @@
 import { db } from '../../firebase/config'
 import crypto from 'crypto-js'
 import {
-    addDoc, Timestamp, collection, query, where, getDocs, doc, updateDoc, arrayUnion, arrayRemove, limit, orderBy
+    addDoc, Timestamp, collection, query, where, getDocs, doc, updateDoc, arrayUnion, arrayRemove, limit, orderBy, getDoc
 } from "firebase/firestore"
 
 const state = {
     chatRooms: [],
     allChatRooms: [],
-    roomOfUser: [],
+    roomOfUser: {},
 }
 const mutations = {
     setRoom(state, payload) {
@@ -56,19 +56,33 @@ const actions = {
         context.dispatch('getRoom')
     },
     async getAllRoom(context, {type}) { // 인원 부족한 방 
-        console.log('all room action')
+        console.log(type,'room action')
         let q = null
         if (type !== 'All') {
-            q = query(collection(db, "chatlist"), where("state","==", false), where("type", "==", type), limit(10)) // 일단 10개로 제한
+            if (!context.state.roomOfUser[type]) {
+                q = query(collection(db, "chatlist"), where("state","==", false), where("type", "==", type), limit(10)) // 일단 10개로 제한
+            }
         } else {
-            q = query(collection(db, "chatlist"), where("state","==", false), limit(10)) // 일단 10개로 제한
+            let types = []
+            Object.keys(context.state.roomOfUser).forEach(key=>{
+                if (!context.state.roomOfUser[key]) {
+                    types.push(key)
+                }
+            })
+            q = query(collection(db, "chatlist"), where("state","==", false), where("type", "in", types), limit(10)) // 일단 10개로 제한
         }
-        const allRef = await getDocs(q)
-        let tmp = []
-        allRef.forEach(doc=>{
-            if(doc.data().users.indexOf(context.rootState.user.email)<0) tmp.push(doc.data());
-        })
-        context.commit('setAllRoom', tmp);
+
+        if (q !== null) {
+            const allRef = await getDocs(q)
+            let tmp = []
+            allRef.forEach(doc=>{
+                if(doc.data().users.indexOf(context.rootState.user.email)<0) tmp.push(doc.data());
+            })
+            context.commit('setAllRoom', tmp);
+        } else {
+            context.commit('setAllRoom', [])
+        }
+        
     },
 
     async intoRoom(context, { roomId }) { // 인원 부족한 방 중에 들어갈때
@@ -82,13 +96,14 @@ const actions = {
             })
 
             const theRoom = doc(db,"chatlist",aid);
-            await updateDoc(theRoom, {
-                users: arrayUnion(context.rootState.user.email)
-            });
+            await updateDoc(theRoom, {users: arrayUnion(context.rootState.user.email)})
+            const docSnap = await getDoc(theRoom)
+            if (docSnap.data().users.length === 4) {
+                await updateDoc(theRoom, {state: true})
+            }
         } catch (e) {
             console.error("Error adding document: ", e);
         }
-        
     }
 }
 const getters = {

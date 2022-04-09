@@ -52,9 +52,6 @@ export default {
             selectedRoom.value = room
             toggleModal()
         }
-        onMounted(() => {
-            store.dispatch("ChatRoomModule/getAllRoom", {type: 'All'});
-        });
         return { allChatRooms, comein, toggleModal, modalActive, select, selectedRoom};
     },
     components: { FilterNav, ConfirmModal }

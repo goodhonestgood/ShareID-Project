@@ -72,19 +72,14 @@ const store = createStore({
     },
 })
 
-const unsub = onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (user) {
-        console.log("onAuthStateChanged ok")
+        console.log("user signed in")
         store.commit('setAuthIsReady', true)
         store.commit('setUser', user)
-        store.dispatch('ChatRoomModule/getRoom')
-    }    
+        await store.dispatch('ChatRoomModule/getRoom')
+        await store.dispatch("ChatRoomModule/getAllRoom", {type: 'All'})
+    }
 })
 
-
-/*
-// Atomically remove a region from the "regions" array field.
-await updateDoc(washingtonRef, {
-    regions: arrayRemove("east_coast")
-});*/
 export default store
