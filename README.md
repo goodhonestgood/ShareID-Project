@@ -17,6 +17,7 @@ Vite
 ## 프로젝트 결과물
 
 결과 홈페이지 : 링크
+[개발 일지](https://messy-close-e7f.notion.site/Vue-3-Vuex-4-Firebase-Vite-e72bd606e1e94c97a03a564b80dfa052)
 
 기능
 
