@@ -16,7 +16,6 @@
         <p># 내 채팅 목록</p>
         <div v-if="chatLists" class="list-group">
             <div class="mb-2" v-for="list in chatLists">
-                <!-- named route -->
                 <router-link class="list-group-item list-group-item-action" :to="{ name: 'ChatRoom', params: { id: list.roomId, roomName: list.roomName }}">{{list.roomName}} | {{list.type}}</router-link>
             </div>
         </div>
@@ -35,8 +34,17 @@ export default {
         const roomName = ref("")
         const roomType = ref("")
         const store = useStore()
-
-        const types = ref(['Wavve', 'Tving', 'Netflix'])
+        // roomOfUser로 만들 수 있는 타입만 보이게 하기
+        const types = computed(()=>{
+            let result = []
+            let dict = store.state.ChatRoomModule.roomOfUser
+            for(val of dict) {
+                if (dict[val] == false) {
+                    result.push(val)
+                } 
+            }
+            return result
+        })
         const selectedType = ref("")
 
         let chatLists = computed(() => store.state.ChatRoomModule.chatRooms)
