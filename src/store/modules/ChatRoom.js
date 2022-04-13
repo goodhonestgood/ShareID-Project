@@ -64,19 +64,27 @@ const actions = {
             }
         } else {
             let types = []
-            Object.keys(context.state.roomOfUser).forEach(key=>{
-                if (!context.state.roomOfUser[key]) {
-                    types.push(key)
-                }
-            })
-            q = query(collection(db, "chatlist"), where("state","==", false), where("type", "in", types), limit(10)) // 일단 10개로 제한
+            if (context.rootState.user !== null) {
+                Object.keys(context.state.roomOfUser).forEach(key=>{
+                    if (!context.state.roomOfUser[key]) {
+                        types.push(key)
+                    }
+                })
+                q = query(collection(db, "chatlist"), where("state","==", false), where("type", "in", types), limit(10)) // 일단 10개로 제한
+            } else {
+                q = query(collection(db, "chatlist"), where("state","==", false), limit(10)) // 일단 10개로 제한
+            }            
         }
 
         if (q !== null) {
             const allRef = await getDocs(q)
             let tmp = []
             allRef.forEach(doc=>{
-                if(doc.data().users.indexOf(context.rootState.user.email)<0) tmp.push(doc.data());
+                if (context.rootState.user !== null) {
+                    if(doc.data().users.indexOf(context.rootState.user.email)<0) tmp.push(doc.data());
+                } else {
+                    tmp.push(doc.data())
+                }
             })
             context.commit('setAllRoom', tmp);
         } else {
