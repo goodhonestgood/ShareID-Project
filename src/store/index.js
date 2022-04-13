@@ -71,15 +71,21 @@ const store = createStore({
     getters: {
     },
 })
-
+if (store.state.user !== null) {
+    store.dispatch('ChatRoomModule/getRoom')
+    store.dispatch("ChatRoomModule/getAllRoom", {type: 'All'})
+} else {
+    store.dispatch("ChatRoomModule/getAllRoom", {type: 'All'})
+}
+/*
 onAuthStateChanged(auth, async (user) => {
-    if (user) {
+    if (user == true) {
         console.log("user signed in")
         store.commit('setAuthIsReady', true)
         store.commit('setUser', user)
         await store.dispatch('ChatRoomModule/getRoom')
-        await store.dispatch("ChatRoomModule/getAllRoom", {type: 'All'})
     }
 })
+store.dispatch("ChatRoomModule/getAllRoom", {type: 'All'})*/
 
 export default store
