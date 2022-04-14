@@ -38,8 +38,13 @@ export default {
         const router = useRouter();
         const allChatRooms = computed(() => store.state.ChatRoomModule.allChatRooms);
         const comein = (room) => {
-            store.dispatch("ChatRoomModule/intoRoom", { roomId: room.roomId });
-            router.push({ name: "ChatRoom", params: { id: room.roomId, roomName: room.roomName } });
+            if (store.state.user !== null) {
+                store.dispatch("ChatRoomModule/intoRoom", { roomId: room.roomId });
+                router.push({ name: "ChatRoom", params: { id: room.roomId, roomName: room.roomName } });
+            } else {
+                router.push({name:"signIn"})
+            }
+
         };
         
         const modalActive = ref(false)
