@@ -1,6 +1,7 @@
 <template>
   <div class="py-1 bg-light">
     <ul class="nav justify-content-end align-items-center">
+      <li class="nav-item"><img class="img-fluid img-thumbnail float-start" src="../assets/LogoSample.jpg" alt="logo" /></li>
       <li class="nav-item">
         <div v-if="isLoggedIn"><a href="#" class="hover nav-link text-secondary" @click="handleClick"> Logout </a></div>
         <div  v-if="!isLoggedIn">
@@ -48,3 +49,15 @@ export default {
   },
 }
 </script>
+<style lang="scss" scoped>
+@import "../../node_modules/bootstrap/scss/functions";
+
+$thumbnail-border-width : 50px;
+
+@import "../../node_modules/bootstrap/scss/variables";
+@import "../../node_modules/bootstrap/scss/mixins";
+@import "../../node_modules/bootstrap/scss/root";
+
+@import "../../node_modules/bootstrap/scss/images";
+
+</style>
